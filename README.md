@@ -1,137 +1,120 @@
-Swiggy Restaurant Recommendation System
 
-A personalized restaurant recommendation system built with K-Means clustering, cosine similarity, and Streamlit. Filters restaurants by city, rating, cost, and cuisine preferences.
+# 🍽️ Swiggy Restaurant Recommendation System
 
-🎯 Features
-Data Preprocessing: Cleaned Swiggy dataset (duplicates, missing values, currency parsing).
+A Machine Learning powered restaurant recommendation system built using Python and Streamlit.
+This project recommends restaurants based on user preferences like city, cuisine, rating, and budget using similarity-based recommendation.
 
-Multi-label Cuisine Encoding: Handles "North Indian,Chinese" → binary features.
+---
 
-Hybrid Recommendations: Filter + NearestNeighbors similarity search.
+## 🚀 Project Overview
 
-Interactive UI: City selector, rating/cost sliders, multi-cuisine picker.
+This project builds a restaurant recommendation engine using:
 
-Metrics Dashboard: Median rating, avg cost, best match similarity.
+- Data cleaning and preprocessing
+- Feature encoding - One Hot Encoding
+- Cosine similarity for recommendation
+- Interactive Streamlit web app
 
-📁 Project Structure
-text
-PROJECT/
-├── 📁 data/
-│   ├── swiggy.csv              # Raw dataset (45MB)
-│   ├── cleaned_data.csv        # Cleaned data (no duplicates/NaNs)
-│   └── encoded_data.csv        # One-hot encoded + numeric features
-├── 📁 models/
-│   ├── mlb_cuisine.pkl         # MultiLabelBinarizer for cuisines
-│   ├── scaler.pkl              # StandardScaler for features
-│   ├── nn_model.pkl            # NearestNeighbors model
-│   └── kmeans_model.pkl        # K-Means clusters (optional)
-├── 📁 notebooks/
-│   └── swiggy.ipynb            # Preprocessing + model training
-├── 🟡 app.py                   # Streamlit web app
-├── 🟡 utils.py                 # Recommendation engine
-├── 📄 README.md                # This file
-└── 📄 .gitignore
-🚀 Quick Start
-1. Install Dependencies
-bash
-pip install streamlit pandas scikit-learn numpy jupyter
-2. Run the App
-bash
-streamlit run app.py
-App opens at: http://localhost:8501
+Users can filter restaurants by:
 
-3. Preprocess Data (First Time Only)
-bash
-jupyter notebook notebooks/swiggy.ipynb
-Run all cells → Creates cleaned_data.csv, encoded_data.csv, and model .pkl files.
+- City
+- Cuisine
+- Minimum rating
+- Maximum cost
 
-🎛️ How to Use
-Select City (e.g., "Delhi")
+The system then suggests the top 5 most similar restaurants.
 
-Set Min Rating (e.g., 3.5⭐)
+---
 
-Set Max Cost (e.g., ₹400)
+## 📂 Project Structure
 
-Pick Cuisines (e.g., "North Indian", "Chinese")
+Swiggy-Restaurant-Recommendation/
+│
+├── data processing and model building.ipynb
+├── cleaned_data.csv
+├── encoded_data.csv
+├── encoder.pkl
+├── swiggy_app.py
+├── requirements.txt
+└── README.md
 
-Click "Get Recommendations"
+---
 
-Output:
+## 🧠 Machine Learning Approach
 
-Metrics: Median rating, rating count, avg cost, best similarity.
+### Data Processing
 
-Table: Top restaurants sorted by similarity score.
+- Removed null values and duplicates
+The data set is in the string(object) values.
 
-🧠 Recommendation Algorithm
-text
-1. Filter: city + rating ≥ X + cost ≤ ₹Y + cuisines match
-2. Scale: encoded features with saved scaler
-3. Similarity: NearestNeighbors(cosine) on filtered subset
-4. Profile: Use centroid of filtered restaurants as "user profile"
-5. Rank: Top-N by cosine similarity (1 - distance)
-Features Used:
+Duplicate removal:
+Total Duplicate values in the data set is 35 as this has very minimal impact.Hence, I have dropped the duplicate values.
 
-text
-Numeric: rating, rating_count, cost
-Categorical: city (one-hot), cuisine (multi-label binarized)
-📊 Dataset
-Source: Swiggy restaurant data (~45MB CSV)
-Columns Used: id, name, city, rating, rating_count, cost, cuisine
-Rows After Cleaning: ~XXK (depends on your dataset)
+Null value handling:
+I am extracting the numerical values from rating, rating count and cost. This is to convert the mentioned values to numericals values.
+values like "--,No rating, new" are converted to NaN
+Values like "+ratings" is avoided by just extracting the number before them
 
-🛠️ Development Workflow
-text
-Day 1-2: notebooks/swiggy.ipynb (clean + encode + train)
-Day 3-4: utils.py (recommendation engine)
-Day 5-6: app.py (Streamlit UI)
-Day 7: Test + README
-🔧 Customization
-Add New Features
-python
-# In utils.py recommend()
-# Add more filters:
-mask_new_feature = df_clean["delivery_time"] <= 30
-Change Algorithm
-python
-# Replace NearestNeighbors with KMeans
-cluster_labels = kmeans.predict(X_scaled)
-similar_clusters = find_similar_clusters(user_cluster)
-📈 Project Evaluation
-Metric	Status
-Data Alignment	Indices match between cleaned_data.csv ↔ encoded_data.csv
-Recommendation Quality	Cosine similarity + filtered relevance
-App Usability	Responsive UI, fast queries (<2s)
-Reproducibility	Random seed=42, saved models/encoders
-🤝 Business Value
-Personalized Recommendations → Higher conversion
+I have checked the difference in the impact of the droping and using imputation metiod to handle the NULL values.
+Total Null values : 58.9%
+However, I have dropped them in this project to reduce stress on my hardware.
+I have dropped the Null values for categorical data : city and cuisine as we are only losing 0.05% of the data.
 
-Customer Experience → Faster decisions
+I have converted the attributes : cost, rating and rating count to numerical values as they are the input.
 
-Market Insights → Popular cities/cuisines
+- Feature engineering:
 
-Operational Efficiency → Optimize menu offerings
+I have dropped id, lic_no, name, address and menu
 
-📝 Report Summary
-Data Cleaning: Removed duplicates (X rows), imputed medians for NaNs, parsed currency.
-Methodology: MultiLabelBinarizer → StandardScaler → NearestNeighbors(cosine).
-Key Insights: Delhi has highest-rated restaurants, North Indian most popular cuisine.
+I have filtered only the top 20 cities to be passed as input. However, I have not filtered the cuisine.
+By doing this, I have (61418, 6) also I have lost about 789 cuisine from the data.
 
-🐛 Troubleshooting
-Issue	Solution
-FileNotFoundError	Run swiggy.ipynb first
-ModuleNotFoundError	pip install -r requirements.txt
-No recommendations	Lower rating/increase budget
-Slow app	Filter fewer cities
-📦 Requirements
-text
-streamlit==1.28.0
-pandas==2.0.3
-scikit-learn==1.3.0
-numpy==1.24.3
-jupyter==1.0.0
-📄 License
-MIT License – Feel free to use/modify for portfolios, interviews, projects.
+- Categorical encoding:
+I am using One Hot encoder as proided in the project requirements.
+categorical_cols = ["city", "cuisine"]
+numerical_cols = ["rating", "rating_count", "cost"]
+Encoded dataset shape: (8495, 873)
 
-🙏 Acknowledgments
-Built for Swiggy Restaurant Recommendation System project.
-Dataset: Swiggy public restaurant data.
+- Feature scaling and vector preparation
+
+
+### Recommendation Engine
+
+- User input converted to feature vector
+- Cosine similarity used to compare restaurants
+- Cuisine-based similarity boosting
+- Top 5 matches returned
+
+---
+
+## 📊 Features
+
+- Interactive UI with Streamlit
+- Real-time restaurant filtering
+- Similarity score display
+- Ranked recommendations
+- Clean dashboard
+
+---
+
+## 🛠️ Installation
+
+git clone https://github.com/your-username/Swiggy-Restaurant-Recommendation.git
+cd Swiggy-Restaurant-Recommendation
+
+python -m venv venv
+source venv/bin/activate   # Windows: venv\Scripts\activate
+
+pip install -r requirements.txt
+
+---
+
+## ▶️ Running the App
+
+streamlit run swiggy_app.py
+
+---
+
+## 👨‍💻 Author
+
+Pratik Mahalle
